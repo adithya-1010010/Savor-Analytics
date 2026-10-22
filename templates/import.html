@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Import {{ title }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Import {{ title|lower }} from CSV</h1>
+<p class="mb-1">Required columns: <code>{{ required|join(', ') }}</code></p>
+<p class="mb-1">Optional columns: <code>{{ optional|join(', ') }}</code></p>
+{% if slug == 'orders' %}
+<p class="text-muted small mb-1">Items go in one cell as <code>menu_id:qty:price</code> separated by semicolons (price is optional). Imported orders don't change stock. An <code>id</code> that already exists replaces that order.</p>
+{% else %}
+<p class="text-muted small mb-1">A row with an <code>id</code> that already exists updates that row.</p>
+{% endif %}
+<p class="text-muted small">Tip: export the table first to get a file in the right format. If any row has a problem, nothing is saved.</p>
+
+<form method="post" enctype="multipart/form-data" class="mb-4">
+  <div class="input-group form-narrow">
+    <input class="form-control" type="file" name="file" accept=".csv,text/csv">
+    <button class="btn btn-primary">Check file</button>
+  </div>
+</form>
+
+{% if report %}
+  {% if report.header_errors %}
+    <div class="alert alert-danger"><strong>The header has problems:</strong>
+      <ul class="mb-0">{% for e in report.header_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+  {% else %}
+    <p>{{ report.good }} row(s) are fine{% if report.row_errors %}, {{ report.row_errors|length }} have problems{% endif %}.</p>
+    {% if report.row_errors %}
+      <div class="alert alert-danger"><strong>Fix these and upload again:</strong>
+        <ul class="mb-0">{% for line, msg in report.row_errors[:50] %}<li>Line {{ line }}: {{ msg }}</li>{% endfor %}</ul>
+        {% if report.row_errors|length > 50 %}<div class="mt-1">...and {{ report.row_errors|length - 50 }} more.</div>{% endif %}
+      </div>
+    {% endif %}
+    {% if report.preview %}
+      <h2 class="h6">Preview (first {{ report.preview|length }} good rows)</h2>
+      <div class="table-responsive">
+      <table class="table table-sm">
+        <thead><tr>{% for c in report.columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+        <tbody>{% for row in report.preview %}<tr>{% for c in report.columns %}<td>{{ row[c] if row[c] is not none else '-' }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+      </table>
+      </div>
+    {% endif %}
+    {% if report.good and not report.row_errors %}
+      <form method="post" action="{{ url_for('import_confirm', slug=slug) }}">
+        <textarea name="csv_text" hidden>{{ text }}</textarea>
+        <button class="btn btn-success">Import {{ report.good }} row(s)</button>
+      </form>
+    {% endif %}
+  {% endif %}
+{% endif %}
+<a class="btn btn-link ps-0 mt-3" href="{{ back }}">Back to {{ title|lower }}</a>
+{% endblock %}

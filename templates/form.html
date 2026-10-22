@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if record else 'Add' }} {{ ent.singular }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Edit' if record else 'Add' }} {{ ent.singular }}</h1>
+{% if errors.get('_') %}<div class="alert alert-danger">{{ errors['_'] }}</div>{% endif %}
+<form method="post" class="form-narrow" novalidate>
+  {% for f in ent.fields %}
+  <div class="mb-3">
+    {% if f.kind == 'bool' %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="{{ f.name }}" id="{{ f.name }}" value="1"
+               {{ 'checked' if values.get(f.name) in (1, '1', 'on', 'true') }}>
+        <label class="form-check-label" for="{{ f.name }}">{{ f.label }}</label>
+      </div>
+    {% else %}
+      <label class="form-label" for="{{ f.name }}">{{ f.label }}{% if not f.required %} <span class="text-muted">(optional)</span>{% endif %}</label>
+      {% if f.kind == 'choice' %}
+        <select class="form-select {{ 'is-invalid' if errors.get(f.name) }}" name="{{ f.name }}" id="{{ f.name }}">
+          <option value="">Choose...</option>
+          {% for c in f.choices %}<option value="{{ c }}" {{ 'selected' if values.get(f.name) == c }}>{{ c }}</option>{% endfor %}
+        </select>
+      {% else %}
+        <input class="form-control {{ 'is-invalid' if errors.get(f.name) }}" name="{{ f.name }}" id="{{ f.name }}"
+               type="{{ 'date' if f.kind == 'date' else 'number' if f.kind in ('int', 'float') else 'text' }}"
+               {% if f.kind == 'float' %}step="any"{% endif %}
+               value="{{ values.get(f.name) if values.get(f.name) is not none else '' }}">
+      {% endif %}
+      {% if errors.get(f.name) %}<div class="invalid-feedback d-block">{{ errors[f.name] }}</div>{% endif %}
+    {% endif %}
+  </div>
+  {% endfor %}
+  <button class="btn btn-primary">Save</button>
+  <a class="btn btn-link" href="{{ url_for('entity_list', slug=slug) }}">Cancel</a>
+</form>
+{% endblock %}

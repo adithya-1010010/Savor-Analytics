@@ -1,0 +1,29 @@
+id,name,category,price,cost,available
+1,Tomato Soup,Starters,4.5,1.2,1
+2,Veg Spring Rolls,Starters,5.0,1.4,1
+3,Chicken Wings,Starters,7.5,2.8,1
+4,Garlic Bread,Starters,3.5,0.8,1
+5,Prawn Cocktail,Starters,9.0,4.0,1
+6,Caesar Salad,Starters,6.5,2.0,1
+7,Butter Chicken,Mains,12.0,4.2,1
+8,Paneer Tikka Masala,Mains,11.0,3.6,1
+9,Grilled Fish,Mains,14.0,5.5,1
+10,Lamb Rogan Josh,Mains,15.5,6.8,1
+11,Mushroom Risotto,Mains,11.5,3.2,1
+12,Spaghetti Carbonara,Mains,12.5,3.5,1
+13,Margherita Pizza,Mains,10.0,3.0,1
+14,Chicken Burger,Mains,9.5,3.1,1
+15,Prawn Curry,Mains,16.0,7.2,1
+16,Veg Biryani,Mains,10.5,2.9,1
+17,French Fries,Sides,4.0,0.9,1
+18,Steamed Rice,Sides,3.0,0.5,1
+19,Garden Salad,Sides,4.5,1.2,1
+20,Sauteed Spinach,Sides,4.5,1.3,1
+21,Chocolate Brownie,Desserts,5.5,1.6,1
+22,Ice Cream Sundae,Desserts,5.0,1.5,1
+23,Cheesecake,Desserts,6.0,2.0,0
+24,Masala Tea,Beverages,2.5,0.4,1
+25,Cappuccino,Beverages,3.5,0.8,1
+26,Fresh Lime Soda,Beverages,3.0,0.5,1
+27,Mango Lassi,Beverages,4.0,1.1,1
+28,Cold Coffee,Beverages,4.5,1.0,1

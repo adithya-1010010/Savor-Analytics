@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Dashboard</h1>
+  <form class="d-flex gap-2 align-items-center" method="get">
+    <input class="form-control form-control-sm" type="date" name="start" value="{{ data.start }}">
+    <span>to</span>
+    <input class="form-control form-control-sm" type="date" name="end" value="{{ data.end }}">
+    <button class="btn btn-sm btn-secondary">Apply</button>
+  </form>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg"><div class="card kpi"><div class="card-body"><div class="small text-muted">Today's revenue</div><div class="fs-4">{{ data.kpis.today_revenue|money }}</div></div></div></div>
+  <div class="col-6 col-lg"><div class="card kpi"><div class="card-body"><div class="small text-muted">Orders in range</div><div class="fs-4">{{ data.kpis.orders }}</div></div></div></div>
+  <div class="col-6 col-lg"><div class="card kpi"><div class="card-body"><div class="small text-muted">Average order</div><div class="fs-4">{{ data.kpis.avg_order|money }}</div></div></div></div>
+  <div class="col-6 col-lg"><div class="card kpi"><div class="card-body"><div class="small text-muted">Low-stock items</div><div class="fs-4"><a href="{{ url_for('entity_list', slug='inventory', low=1) }}">{{ data.kpis.low_stock }}</a></div></div></div></div>
+  <div class="col-12 col-lg"><div class="card kpi"><div class="card-body"><div class="small text-muted">Top item in range</div><div class="fs-5">{{ data.kpis.top_item }}</div></div></div></div>
+</div>
+
+<div id="charts" class="row g-4">
+  <div class="col-12"><h2 class="h6">Revenue per day</h2><div class="chart-box"><canvas id="daily"></canvas></div></div>
+  <div class="col-md-6"><h2 class="h6">Revenue by category</h2><div class="chart-box"><canvas id="categories"></canvas></div></div>
+  <div class="col-md-6"><h2 class="h6">Top selling items (quantity)</h2><div class="chart-box"><canvas id="top"></canvas></div></div>
+  <div class="col-md-6"><h2 class="h6">Orders by hour</h2><div class="chart-box"><canvas id="hours"></canvas></div></div>
+  <div class="col-md-6"><h2 class="h6">Revenue by staff member</h2><div class="chart-box"><canvas id="staff"></canvas></div></div>
+</div>
+
+{# shown only when Chart.js can't load (for example, no internet) #}
+<div id="fallback" class="d-none">
+  <p class="text-muted">Charts couldn't load, so here are the numbers.</p>
+  <div class="row g-4">
+    <div class="col-md-6"><h2 class="h6">Revenue by category</h2>
+      <table class="table table-sm"><tbody>
+        {% for i in range(data.categories.labels|length) %}<tr><td>{{ data.categories.labels[i] }}</td><td class="text-end">{{ data.categories['values'][i]|money }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    <div class="col-md-6"><h2 class="h6">Top selling items</h2>
+      <table class="table table-sm"><tbody>
+        {% for i in range(data.top_items.labels|length) %}<tr><td>{{ data.top_items.labels[i] }}</td><td class="text-end">{{ data.top_items['values'][i] }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    <div class="col-md-6"><h2 class="h6">Orders by hour</h2>
+      <table class="table table-sm"><tbody>
+        {% for i in range(data.hours.labels|length) %}<tr><td>{{ data.hours.labels[i] }}</td><td class="text-end">{{ data.hours['values'][i] }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    <div class="col-md-6"><h2 class="h6">Staff</h2>
+      <table class="table table-sm"><thead><tr><th></th><th class="text-end">Orders</th><th class="text-end">Revenue</th></tr></thead><tbody>
+        {% for i in range(data.staff.labels|length) %}<tr><td>{{ data.staff.labels[i] }}</td><td class="text-end">{{ data.staff.orders[i] }}</td><td class="text-end">{{ data.staff.revenue[i]|money }}</td></tr>{% endfor %}
+      </tbody></table></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.DASH = {{ data|tojson }};</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

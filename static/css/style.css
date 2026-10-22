@@ -1,0 +1,9 @@
+.form-narrow { max-width: 640px; }
+.qty-box { width: 5rem; }
+.chart-box { position: relative; height: 280px; }
+.kpi .card-body { padding: 0.75rem 1rem; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}

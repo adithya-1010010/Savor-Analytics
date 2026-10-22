@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Reports</h1>
+<div class="list-group form-narrow">
+  {% for key, (title, about, fn) in reports.items() %}
+  <a class="list-group-item list-group-item-action" href="{{ url_for('report_view', name=key) }}">
+    <div class="fw-semibold">{{ title }}</div><div class="small text-muted">{{ about }}</div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

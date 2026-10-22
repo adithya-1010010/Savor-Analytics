@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ report.title }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-0">{{ report.title }}</h1>
+    <div class="text-muted">{{ report.subtitle }}</div>
+  </div>
+  <div class="no-print">
+    <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print</button>
+    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('report_view', name=name, format='csv', **report['values']) }}">Download CSV</a>
+    <a class="btn btn-sm btn-link" href="{{ url_for('reports_index') }}">All reports</a>
+  </div>
+</div>
+
+{% if report.params %}
+<form class="d-flex flex-wrap gap-2 align-items-center mb-3 no-print" method="get">
+  {% if report.params == 'day' %}
+    <input class="form-control form-control-sm w-auto" type="date" name="day" value="{{ report['values']['day'] }}">
+  {% else %}
+    <input class="form-control form-control-sm w-auto" type="date" name="start" value="{{ report['values']['start'] }}">
+    <span>to</span>
+    <input class="form-control form-control-sm w-auto" type="date" name="end" value="{{ report['values']['end'] }}">
+  {% endif %}
+  <button class="btn btn-sm btn-secondary">Show</button>
+</form>
+{% endif %}
+
+<p>{% for label, value in report.summary %}<span class="me-4"><span class="text-muted">{{ label }}:</span> <strong>{{ value }}</strong></span>{% endfor %}</p>
+
+{% if report.rows %}
+<table class="table table-sm">
+  <thead><tr>{% for c in report.columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for row in report.rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% else %}
+<p class="text-muted">Nothing to report for this selection.</p>
+{% endif %}
+{% endblock %}

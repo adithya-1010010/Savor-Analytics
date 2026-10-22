@@ -1,0 +1,13 @@
+id,name,role,shift,phone,salary,hire_date
+1,Meera Nair,Manager,Morning,9918390409,3200.0,2019-11-23
+2,Arjun Das,Chef,Morning,9930379756,2600.0,2021-08-11
+3,Rohan Pillai,Chef,Evening,9408157429,2600.0,2020-02-18
+4,Sana Iqbal,Chef,Evening,9486845604,2400.0,2022-02-12
+5,Divya Menon,Waiter,Morning,9174648506,1500.0,2023-02-03
+6,Karthik Raj,Waiter,Morning,9381469012,1500.0,2023-02-25
+7,Anil Kumar,Waiter,Evening,9719595113,1500.0,2021-05-08
+8,Fatima Khan,Waiter,Evening,9753573823,1550.0,2021-12-29
+9,Joseph Mathew,Waiter,Evening,9654049436,1500.0,2019-10-20
+10,Lakshmi Iyer,Cashier,Morning,9573528321,1700.0,2020-12-01
+11,Vikram Singh,Cashier,Evening,9175452091,1700.0,2021-09-29
+12,Ravi Shankar,Cleaner,Night,9407437181,1200.0,2024-03-08

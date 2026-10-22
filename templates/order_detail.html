@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Order {{ order['id'] }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Order {{ order['id'] }}</h1>
+<dl class="row">
+  <dt class="col-sm-2">Time</dt><dd class="col-sm-10">{{ order['order_time'] }}</dd>
+  <dt class="col-sm-2">Table</dt><dd class="col-sm-10">{{ order['table_no'] }}</dd>
+  <dt class="col-sm-2">Waiter</dt><dd class="col-sm-10">{{ order['staff'] }}</dd>
+  <dt class="col-sm-2">Customer</dt><dd class="col-sm-10">{{ order['customer'] or 'Walk-in' }}</dd>
+  <dt class="col-sm-2">Status</dt><dd class="col-sm-10">{{ order['status'] }}</dd>
+</dl>
+<table class="table table-sm form-narrow">
+  <thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Price</th><th class="text-end">Line total</th></tr></thead>
+  <tbody>
+  {% for i in items %}
+    <tr><td>{{ i['name'] }}</td><td class="text-end">{{ i['qty'] }}</td><td class="text-end">{{ i['price']|money }}</td><td class="text-end">{{ (i['qty'] * i['price'])|money }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th colspan="3" class="text-end">Total</th><th class="text-end">{{ order['total']|money }}</th></tr></tfoot>
+</table>
+
+<div class="d-flex flex-wrap gap-2">
+  {% if order['status'] != 'cancelled' %}
+  <form method="post" action="{{ url_for('order_status', oid=order['id']) }}" class="d-flex gap-2">
+    <select class="form-select form-select-sm" name="status">
+      {% for s in order_statuses %}<option value="{{ s }}" {{ 'selected' if order['status'] == s }}>{{ s }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-sm btn-primary">Update</button>
+  </form>
+  {% endif %}
+  <form method="post" action="{{ url_for('order_delete', oid=order['id']) }}" onsubmit="return confirm('Delete this order?');">
+    <button class="btn btn-sm btn-outline-danger">Delete</button>
+  </form>
+  <a class="btn btn-sm btn-link" href="{{ url_for('orders_list') }}">Back to orders</a>
+</div>
+{% if order['status'] != 'cancelled' %}
+<p class="text-muted small mt-2">Cancelling an order puts its ingredients back in stock.</p>
+{% endif %}
+{% endblock %}

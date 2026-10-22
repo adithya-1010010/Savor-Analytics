@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}New order{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">New order</h1>
+<form method="post" class="form-narrow">
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <label class="form-label" for="table_id">Table</label>
+      <select class="form-select" name="table_id" id="table_id">
+        <option value="">Choose...</option>
+        {% for t in tables %}<option value="{{ t['id'] }}" {{ 'selected' if form.get('table_id') == t['id']|string }}>Table {{ t['table_no'] }} ({{ t['capacity'] }} seats, {{ t['status'] }})</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="staff_id">Waiter</label>
+      <select class="form-select" name="staff_id" id="staff_id">
+        <option value="">Choose...</option>
+        {% for s in staff %}<option value="{{ s['id'] }}" {{ 'selected' if form.get('staff_id') == s['id']|string }}>{{ s['name'] }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="customer_id">Customer <span class="text-muted">(optional)</span></label>
+      <select class="form-select" name="customer_id" id="customer_id">
+        <option value="">Walk-in</option>
+        {% for c in customers %}<option value="{{ c['id'] }}" {{ 'selected' if form.get('customer_id') == c['id']|string }}>{{ c['name'] }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <h2 class="h6">Items</h2>
+  <div id="rows">
+    {% for mid, qty in pairs %}
+    <div class="row g-2 mb-2 item-row">
+      <div class="col-8">
+        <select class="form-select" name="menu_item_id">
+          <option value="">Choose an item...</option>
+          {% for m in menu %}<option value="{{ m['id'] }}" {{ 'selected' if mid == m['id']|string }}>{{ m['name'] }} - {{ m['price']|money }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-4"><input class="form-control" type="number" name="qty" min="1" value="{{ qty or 1 }}"></div>
+    </div>
+    {% endfor %}
+  </div>
+  <button type="button" class="btn btn-sm btn-outline-secondary mb-3" id="add-row">Add another item</button>
+  <div>
+    <button class="btn btn-primary">Place order</button>
+    <a class="btn btn-link" href="{{ url_for('orders_list') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById("add-row").addEventListener("click", function () {
+    var rows = document.getElementById("rows");
+    var copy = rows.lastElementChild.cloneNode(true);
+    copy.querySelector("select").value = "";
+    copy.querySelector("input").value = 1;
+    rows.appendChild(copy);
+  });
+</script>
+{% endblock %}

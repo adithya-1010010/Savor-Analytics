@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}{{ ent.title }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">{{ ent.title }} <span class="text-muted fs-6">({{ total }})</span></h1>
+  <div>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('entity_new', slug=slug) }}">Add {{ ent.singular }}</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('import_view', slug=slug) }}">Import CSV</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_view', slug=slug) }}">Export CSV</a>
+  </div>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-12 col-md-4">
+    <input class="form-control form-control-sm" name="q" value="{{ q }}" placeholder="Search">
+  </div>
+  {% for name in ent.filters %}
+  {% set f = ent.field(name) %}
+  <div class="col-6 col-md-2">
+    <select class="form-select form-select-sm" name="{{ name }}">
+      <option value="">Any {{ f.label|lower }}</option>
+      {% if f.kind == 'choice' %}
+        {% for c in f.choices %}<option value="{{ c }}" {{ 'selected' if filters[name] == c }}>{{ c }}</option>{% endfor %}
+      {% endif %}
+    </select>
+  </div>
+  {% endfor %}
+  {% if slug == 'inventory' %}
+  <div class="col-auto d-flex align-items-center">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="low" value="1" id="low" {{ 'checked' if low }}>
+      <label class="form-check-label small" for="low">Low stock only</label>
+    </div>
+  </div>
+  {% endif %}
+  <div class="col-auto">
+    <button class="btn btn-sm btn-secondary">Search</button>
+    <a class="btn btn-sm btn-link" href="{{ url_for('entity_list', slug=slug) }}">Clear</a>
+  </div>
+</form>
+
+{% if rows %}
+<div class="table-responsive">
+<table class="table table-sm table-hover align-middle">
+  <thead>
+    <tr>
+      {% for f in ent.fields %}
+      <th><a class="text-decoration-none text-dark" href="{{ sort_url(f.name) }}">{{ f.label }}{% if sort == f.name %} {{ '&#9660;'|safe if direction == 'desc' else '&#9650;'|safe }}{% endif %}</a></th>
+      {% endfor %}
+      {% if slug == 'inventory' %}<th>Restock</th><th>Write off</th>{% endif %}
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      {% for f in ent.fields %}
+      <td>
+        {{ r[f.name]|fmt(f) }}
+        {% if slug == 'inventory' and f.name == 'stock_qty' and r['stock_qty'] <= r['reorder_level'] %}
+          <span class="badge text-bg-warning">low</span>
+        {% endif %}
+      </td>
+      {% endfor %}
+      {% if slug == 'inventory' %}
+      <td>
+        <form class="d-flex gap-1" method="post" action="{{ url_for('inventory_restock', rid=r['id']) }}">
+          <input class="form-control form-control-sm qty-box" name="qty" type="number" step="any" min="0" placeholder="qty">
+          <button class="btn btn-sm btn-outline-success">Add</button>
+        </form>
+      </td>
+      <td>
+        <form class="d-flex gap-1" method="post" action="{{ url_for('inventory_waste', rid=r['id']) }}">
+          <input class="form-control form-control-sm qty-box" name="qty" type="number" step="any" min="0" placeholder="qty">
+          <input class="form-control form-control-sm" name="reason" placeholder="reason">
+          <button class="btn btn-sm btn-outline-danger">Log</button>
+        </form>
+      </td>
+      {% endif %}
+      <td class="text-nowrap text-end">
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('entity_edit', slug=slug, rid=r['id']) }}">Edit</a>
+        <form class="d-inline" method="post" action="{{ url_for('entity_delete', slug=slug, rid=r['id']) }}"
+              onsubmit="return confirm('Delete this {{ ent.singular }}?');">
+          <button class="btn btn-sm btn-outline-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% include "_pager.html" %}
+{% else %}
+<p class="text-muted">Nothing found. {% if q or low %}Try a different search.{% else %}Add the first {{ ent.singular }} to get started.{% endif %}</p>
+{% endif %}
+
+{% if slug == 'inventory' and wastage %}
+<h2 class="h5 mt-4">Recent wastage</h2>
+<table class="table table-sm">
+  <thead><tr><th>When</th><th>Ingredient</th><th>Quantity</th><th>Reason</th></tr></thead>
+  <tbody>
+  {% for w in wastage %}
+    <tr><td>{{ w['logged_at'] }}</td><td>{{ w['ingredient'] }}</td><td>{{ '%g'|format(w['qty']) }} {{ w['unit'] }}</td><td>{{ w['reason'] }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
